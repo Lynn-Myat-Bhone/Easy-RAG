@@ -1,0 +1,12 @@
+python-dotenv
+sentence-transformers
+chromadb
+google-genai
+
+
+langchain 
+langchain_chroma
+langchain_core
+langchain-text-splitters
+langchain-community
+langchain_huggingface
