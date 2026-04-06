@@ -41,11 +41,12 @@ class RAG:
     
     def retrieve(self, question):
         results = self.db.similarity_search_with_score(question, k=5)
-
-        for doc, score in results:
-            print(f"[DEBUG] score={score}")
-            print(doc.page_content)
-            print("-----")
+        
+        #debug
+        # for doc, score in results:
+        #     print(f"[DEBUG] score={score}")
+        #     print(doc.page_content)
+        #     print("-----")
 
         return [doc.page_content for doc, _ in results]
 
@@ -64,37 +65,48 @@ class RAG:
         Answer in Burmese.
         """
 
-                response = self.client.models.generate_content(
-                model=self.gemini_model,
-                contents=prompt,
-            )
+                stream = self.client.models.generate_content_stream(
+                    model=self.gemini_model,
+                    contents=prompt,
+                )
 
-                return response.text
+                for chunk in stream:
+                    if chunk.text:
+                        yield chunk.text
 
-    def ask(self, question):
-            if not self.db:
-                raise ValueError("DB not loaded!")
 
+    def ask_stream(self, question):
             docs = self.retrieve(question)
 
             if not docs:
-                return "No answer found"
+                yield "မေးခွန်းအတွက်ပေးထားသောအချက်အလက်မရှိပါ"
+                return
 
-            return self.generate(question, docs)
-
+            for token in self.generate(question, docs):
+                yield token
 
 if __name__ == "__main__":
     rag = RAG()
-
     if not os.path.exists(rag.db_path):
         documents = loader.load_csv("../dataset/q&a-v1.csv.csv")
         rag.build_db(documents)
-    rag.load_db()
-    docs = rag.db.get()
 
-    print(docs.keys())
-    print(len(docs["documents"]))
-    
-    print("------------RAG + GEMINI---------------------")
-    print(rag.ask("ရန်ကုန် ကွန်ပျူတာတက္ကသိုလ်ကဘယ်မှာရှိတာလဲ "))
+    rag.load_db()
+
+    docs = rag.db.get()
+    # print(docs.keys())
+    # print(len(docs["documents"]))
+    print("------------RAG + GEMINI (Streaming)---------------------")
+
+    while True:
+        q = input("\nYou: ")
+
+        if q.lower() in ["exit", "quit"]:
+            break
+
+        print("Bot: ", end="", flush=True)
+        for token in rag.ask_stream(q):
+            print(token, end="", flush=True)
+
+        print()  
 
