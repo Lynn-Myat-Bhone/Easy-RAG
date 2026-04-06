@@ -10,7 +10,6 @@ def load_csv(data_path):
         for row in reader:
             text = f"{row['question_mm']}\n{row['answer_mm']}"
             metadata = {
-                "id": row["id"],
                 "topic": row["topic"],
                 "difficulty": row["difficulty"],
                 "lang": "my",

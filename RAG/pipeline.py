@@ -87,7 +87,7 @@ if __name__ == "__main__":
     rag = RAG()
 
     if not os.path.exists(rag.db_path):
-        documents = loader.load_json("../dataset/q&a.json")
+        documents = loader.load_csv("../dataset/q&a-v1.csv.csv")
         rag.build_db(documents)
     rag.load_db()
     docs = rag.db.get()
@@ -96,4 +96,5 @@ if __name__ == "__main__":
     print(len(docs["documents"]))
     
     print("------------RAG + GEMINI---------------------")
-    print(rag.ask("သင်္ကြန်ပွဲတော်ပိတ်ရက်မှာ ခန့်မှန်းခြေ မည်သည့်ကာလနည်း။"))
+    print(rag.ask("ရန်ကုန် ကွန်ပျူတာတက္ကသိုလ်ကဘယ်မှာရှိတာလဲ "))
+
