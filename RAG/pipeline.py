@@ -58,9 +58,9 @@ class RAG:
             "a": answer
         })
 
-    # keep only recent history
-    if len(self.memory) > self.max_history:
-        self.memory.pop(0)
+        # keep only recent history
+        if len(self.memory) > self.max_history:
+            self.memory.pop(0)
     
     def get_memory_context(self):
         history = ""
