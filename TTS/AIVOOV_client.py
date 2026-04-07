@@ -45,7 +45,7 @@ if __name__ == "__main__":
   # Quick manual test
   client = AIVOOVClient()
   result = client.create_tts(
-    text="hello world",
-    voice_id="cffc1d81-07cc-494f-a03a-0c0eebe99c8c",
+    text="မင်းတိုအဆင်ပြေသလိုတီးကျ",
+    voice_id="ab92728d-0b8b-437b-af72-0794673fe575",
   )
   print(result)
