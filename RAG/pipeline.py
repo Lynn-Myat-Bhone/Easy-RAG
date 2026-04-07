@@ -22,6 +22,8 @@ class RAG:
             model_name=self.model
        )
        self.db = None
+       self.memory = []
+       self.max_history = 10 # keep last 5 turns
        
     def build_db(self,documents):
            self.db = Chroma.from_documents(
@@ -49,41 +51,63 @@ class RAG:
         #     print("-----")
 
         return [doc.page_content for doc, _ in results]
+    
+    def update_memory(self, question, answer):
+        self.memory.append({
+            "q": question,
+            "a": answer
+        })
 
-    def generate(self, question, context_docs):
-                context = "\n\n".join(context_docs)
+    # keep only recent history
+    if len(self.memory) > self.max_history:
+        self.memory.pop(0)
+    
+    def get_memory_context(self):
+        history = ""
 
-                prompt = f"""
-        You are a helpful assistant. Answer using ONLY the context below.
+        for turn in self.memory:
+            history += f"User: {turn['q']}\n"
+            history += f"Assistant: {turn['a']}\n"
 
-        Context:
-        {context}
+        return history.strip()
 
-        Question:
-        {question}
+    def generate_stream(self, question, context_docs):
+        context = "\n\n".join(context_docs)
+        history = self.get_memory_context()
 
-        Answer in Burmese.
-        """
+        prompt = f"""
+    You are a helpful assistant.
 
-                stream = self.client.models.generate_content_stream(
-                    model=self.gemini_model,
-                    contents=prompt,
-                )
+    Use conversation history if relevant.
 
-                for chunk in stream:
-                    if chunk.text:
-                        yield chunk.text
+    Conversation History:
+    {history}
+
+    Knowledge Context:
+    {context}
+
+    Current Question:
+    {question}
+
+    Answer in Burmese.
+    """
 
 
     def ask_stream(self, question):
-            docs = self.retrieve(question)
+        docs = self.retrieve(question)
 
-            if not docs:
-                yield "မေးခွန်းအတွက်ပေးထားသောအချက်အလက်မရှိပါ"
-                return
+        if not docs:
+            yield "မေးခွန်းအတွက်တိကျသောအဖြေမရှိပါ"
+            return
 
-            for token in self.generate(question, docs):
-                yield token
+        full_answer = ""
+
+        for token in self.generate_stream(question, docs):
+            full_answer += token
+            yield token
+
+        # 🧠 save memory AFTER streaming
+        self.update_memory(question, full_answer)
 
 if __name__ == "__main__":
     rag = RAG()
@@ -101,12 +125,10 @@ if __name__ == "__main__":
     while True:
         q = input("\nYou: ")
 
-        if q.lower() in ["exit", "quit"]:
-            break
-
         print("Bot: ", end="", flush=True)
+
         for token in rag.ask_stream(q):
             print(token, end="", flush=True)
 
-        print()  
+        print()
 
