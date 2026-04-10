@@ -1,4 +1,6 @@
 dataset
 venv
 test.md
-__pycache__
+RAG/chroma_db/
+__pycache__/
+*.pyc
