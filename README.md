@@ -58,18 +58,6 @@ MODEL=gemini-1.5-flash
 ```
 
 ---
-
-## 📊 Dataset Format
-
-### ✅ CSV Example
-
-```
-id,question_mm,answer_mm,question_en,answer_en,topic,quality_score
-1,သင်္ကြန်ပိတ်ရက်ဘယ်လောက်လဲ,ဧပြီ ၁၃ မှ ၁၆,Thingyan holiday?,April 13-16,holiday,0.9
-```
-
----
-
 ## How It Works
 
 ```

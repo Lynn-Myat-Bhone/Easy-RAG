@@ -2,7 +2,8 @@ python-dotenv
 sentence-transformers
 chromadb
 google-genai
-
+fastapi
+uvicorn
 
 langchain 
 langchain_chroma

@@ -8,18 +8,13 @@ def load_csv(data_path):
         reader = csv.DictReader(f)
 
         for row in reader:
-            text = f"{row['question_mm']}\n{row['answer_mm']}"
-            metadata = {
-                "topic": row["topic"],
-                "difficulty": row["difficulty"],
-                "lang": "my",
-                "source": row["source_file"]
-            }
+            # combine ALL columns into text
+            text = "\n".join([f"{k}: {v}" for k, v in row.items()])
 
             documents.append(
                 Document(
                     page_content=text.strip(),
-                    metadata=metadata
+                    metadata=row
                 )
             )
 

@@ -1,8 +1,7 @@
-import loader
+import RAG.loader as loader
 import os
 from dotenv import load_dotenv
 from google import genai
-
 from langchain_core.documents import Document
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -15,7 +14,7 @@ class RAG:
        self.top_k = int(os.getenv("TOP_K",4))
        self.gemini_key = os.getenv("GEMINI_API_KEY")
        self.gemini_model = os.getenv("MODEL")
-       
+       self.dataset_path = os.getenv("DATASET_PATH")
        self.client = genai.Client(api_key=self.gemini_key)
        
        self.embedding = HuggingFaceEmbeddings(
@@ -33,10 +32,23 @@ class RAG:
            )
         
     def load_db(self):
+        if not self.dataset_path:
+            raise ValueError("Dataset path not provided")
+        # Case 1: DB exists
+        if os.path.exists(self.db_path) and os.listdir(self.db_path):
             self.db = Chroma(
-            persist_directory=self.db_path,
-            embedding_function=self.embedding
+                persist_directory=self.db_path,
+                embedding_function=self.embedding
             )
+            print("[INFO] DB loaded successfully")
+            return
+
+        # Case 2: DB missing → build it
+        print("[WARN] DB not found. Building new DB...")
+        documents = loader.load_csv(self.dataset_path)
+        self.build_db(documents)
+
+        print("[INFO] DB built and ready")
     def query(self, question):
         results = self.db.similarity_search(question, k=self.top_k)
         return results[0].page_content if results else "No answer found"
@@ -71,43 +83,51 @@ class RAG:
 
         return history.strip()
 
-    def generate_stream(self, question, context_docs):
+    def generate(self, question, context_docs):
         context = "\n\n".join(context_docs)
         history = self.get_memory_context()
 
         prompt = f"""
-    You are a helpful assistant.
+        You are a helpful and intelligent assistant.
 
-    Use conversation history if relevant.
+        Rules:
+        - If the provided context is useful, use it.
+        - if you dont found answer is centext_docs, say "I dont have the answer yet"
+        - If the context is NOT useful or incomplete, answer using your own knowledge.
+        - Always respond naturally and clearly in Burmese.
 
-    Conversation History:
-    {history}
+        Conversation History:
+        {history}
 
-    Knowledge Context:
-    {context}
+        Context:
+        {context}
 
-    Current Question:
-    {question}
+        Question:
+        {question}
 
-    Answer in Burmese.
-    """
+        Now give a helpful answer:
+        """
 
+        response = self.client.models.generate_content(
+            model=self.gemini_model,
+            contents=prompt
+        )
 
-    def ask_stream(self, question):
+        return response.text
+
+    def ask(self, question):
         docs = self.retrieve(question)
 
         if not docs:
-            yield "မေးခွန်းအတွက်တိကျသောအဖြေမရှိပါ"
-            return
+            answer = "မေးခွန်းအတွက်တိကျသောအဖြေမရှိပါ"
+            self.update_memory(question, answer)
+            return answer
 
-        full_answer = ""
+        answer = self.generate(question, docs)
+        self.update_memory(question, answer)
 
-        for token in self.generate_stream(question, docs):
-            full_answer += token
-            yield token
-
-        # 🧠 save memory AFTER streaming
-        self.update_memory(question, full_answer)
+        return answer
+   
 
 if __name__ == "__main__":
     rag = RAG()
