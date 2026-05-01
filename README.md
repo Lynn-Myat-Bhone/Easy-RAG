@@ -1,136 +1,144 @@
-# 🧠 RAG Chatbot with Streaming & Contextual Memory
+# 🧠 RAG API System
 
-A production-ready **Retrieval-Augmented Generation (RAG)** chatbot built with:
-
-* ChromaDB (vector database)
-* HuggingFace embeddings
-* Gemini API (LLM)
-* Streaming responses (token-by-token)
-* Contextual memory (multi-turn conversation)
+A Retrieval-Augmented Generation (RAG) API that combines semantic search with large language models to generate accurate, context-aware answers.
 
 ---
 
-## 🚀 Features
+##  Features
 
-* Multilingual (Burmese + English)
-* Vector search with ChromaDB
-* Streaming responses 
-* Context-aware conversation memory
-* Auto DB build & load
+- Vector-based semantic retrieval (ChromaDB)
+- LLM-powered answer generation
+- FastAPI backend (high performance)
+- Source-aware responses (RAG transparency)
+- Modular architecture (easy to extend)
+
 ---
 
 ## Project Structure
 
 ```
-RAG/
-    │── pipeline.py        # Core RAG logic (retrieve + generate + stream)
-    │── loader.py          # Load CSV / JSON data
-    │── chroma_db/         # Vector database (auto-generated)
+project-root/
+│
+├── RAG/
+│   ├── pipeline.py        # Core RAG logic (retrieve + generate)
+│   ├── loader.py          # Data loading & preprocessing
+│   └── chroma_db/         # Vector database (auto-generated)
+│
+├── app.py                 # FastAPI API server
+│
+└── README.md
 ```
 
 ---
 
-## ⚙️ Installation
-
-```bash
-git clone <your-repo>
-cd RAG
-
-python -m venv venv
-venv\Scripts\activate  # Windows
-
-pip install -r requirements.txt
-```
-
----
-
-## 🔐 Environment Variables
-
-Create a `.env` file:
-
-```
-EMBEDDING_MODEL=intfloat/multilingual-e5-base
-CHROMA_DB_PATH=./chroma_db
-TOP_K=3
-
-GEMINI_API_KEY=your_api_key_here
-MODEL=gemini-1.5-flash
-```
-
----
-## How It Works
+## ⚙️ How It Works
 
 ```
 User Question
     ↓
-Retrieve (ChromaDB)
+FastAPI (/chat endpoint)
     ↓
-Context + Memory
+RAG Pipeline
+   ├── Retrieve relevant chunks (ChromaDB)
+   └── Generate answer (LLM)
     ↓
-Gemini LLM (Streaming)
-    ↓
-Answer (token-by-token)
+Return JSON response
 ```
 
 ---
 
-##  Run the Chatbot (CLI)
+## 🧪 API Usage
 
+### POST `/chat`
+
+#### Request
+```json
+{
+  "question": "What is RAG?"
+}
+```
+
+#### Response
+```json
+{
+  "question": "What is RAG?",
+  "answer": "RAG stands for Retrieval-Augmented Generation..."
+}
+```
+
+---
+
+## 🖥️ Setup & Installation
+
+### 1. Clone repository
 ```bash
-python pipeline.py
+git clone <https://github.com/Lynn-Myat-Bhone/Easy-RAG.git>
+cd <Easy-RAG>
 ```
 
-### Example
+### 2. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+### create .env file 
+```
+MODEL = gemini-2.5-flash
+GEMINI_API_KEY = Your_GEMINI_API_KEY
+EMBEDDING_MODEL=intfloat/multilingual-e5-base
+CHROMA_DB_PATH=./chroma_db
+TOP_K=4
+
+DATASET_PATH = your_dataset_path
 
 ```
-You: သင်္ကြန်ပိတ်ရက်ဘယ်လောက်လဲ
-Bot: ၂၀၂၆ ခုနှစ်၊ ဧပြီလ ၁၃ မှ ၁၆ ရက်နေ့အထိ ဖြစ်ပါသည်။
+
+### 3. Run FastAPI server
+```bash
+uvicorn app:app --reload
+```
+---
+
+## 📊 API Documentation
+
+FastAPI provides interactive docs:
+```
+http://localhost:8000/docs
 ```
 
----
+## Tech Stack
 
-
-## 🧠 Contextual Memory
-
-
----
-
-
-## 🛠️ Future Improvements
-
-* 🔸 Redis caching
-* 🔸 Hybrid search (keyword + vector)
-* 🔸 Reranking models
-* 🔸 Web UI (React / Next.js)
-* 🔸 Multi-user session memory
+- Backend: FastAPI  
+- Vector Database: ChromaDB  
+- Embeddings: HuggingFace  
+- LLM: Local model or API (Gemini, etc.)
 
 ---
 
-## Debugging
+## Example Use Cases
 
-Enable retrieval debug:
-
-```python
-print(score, doc.page_content[:50])
-```
-
----
-
-## Known Limitations
-
-* Burmese embedding quality may vary
-* Memory is in-memory (not persistent)
-* Requires good dataset quality
+- Question Answering System  
+- Knowledge Base Assistant  
+- Document Search Engine  
+- AI Chatbot Backend  
 
 ---
 
+## Future Improvements
 
-## Author
-
-Lynn Myat Bhone
+- Streaming responses (token-by-token output)
+- Conversation memory
+- Hybrid search (BM25 + vector)
+- Reranking models
+- Evaluation metrics (BERTScore, etc.)
 
 ---
 
-## 📄 License
+## License
 
 MIT License
+
+---
+
+## 👨‍💻 Author
+
+Lynn Myat Bhone
