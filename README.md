@@ -109,8 +109,8 @@ http://localhost:8000/docs
 
 - Backend: FastAPI  
 - Vector Database: ChromaDB  
-- Embeddings: HuggingFace  
-- LLM: Local model or API (Gemini, etc.)
+- Embeddings: multilingual-e5-base
+- LLM: API (Gemini, etc.)
 
 ---
 
