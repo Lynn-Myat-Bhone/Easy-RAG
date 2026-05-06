@@ -1,7 +1,7 @@
 import pandas as pd
 from bert_score import score
 
-df = pd.read_csv("../data/evaluation_results_sea_lion_gemma_finetuned_only.csv")
+df = pd.read_csv("../data/finetuning_final_evaluation_results.csv")
 candidates = df["Gemma-SEA-LION-v4-27B Finetuned Only - 78%"].astype(str).tolist()
 references = df["Ground Truth"].astype(str).tolist()
 

@@ -4,7 +4,7 @@ chromadb
 google-genai
 fastapi
 uvicorn
-
+bert_score
 langchain 
 langchain_chroma
 langchain_core
